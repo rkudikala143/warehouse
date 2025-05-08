@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #6dd5ed, #2193b0);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .register-box {
+      background: white;
+      padding: 35px 30px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 450px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .register-box h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #333;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 15px;
+      transition: border 0.3s;
+    }
+
+    input:focus, select:focus {
+      border-color: #2193b0;
+      outline: none;
+    }
+
+    .error {
+      color: red;
+      font-size: 13px;
+      margin-top: 5px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      background-color: #2193b0;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background-color: #1b7ca6;
+    }
+
+    .link {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .link a {
+      color: #2193b0;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+<div class="register-box">
+  <h2>Create Account</h2>
+  <form id="registerForm" novalidate>
+    <input type="text" id="firstName" placeholder="First Name" />
+    <div id="firstNameError" class="error"></div>
+
+    <input type="text" id="lastName" placeholder="Last Name" />
+    <div id="lastNameError" class="error"></div>
+
+    <input type="email" id="email" placeholder="Email Address" />
+    <div id="emailError" class="error"></div>
+
+    <input type="password" id="password" placeholder="Password" />
+    <div id="passwordError" class="error"></div>
+
+    <input type="password" id="confirmPassword" placeholder="Confirm Password" />
+    <div id="confirmPasswordError" class="error"></div>
+
+    <select id="role">
+      <option value="">-- Select Role Type --</option>
+      <option value="admin">Admin</option>
+      <option value="employee">Employee</option>
+      <option value="user">User</option>
+    </select>
+    <div id="roleError" class="error"></div>
+
+    <button class="btn" type="submit">Register</button>
+  </form>
+
+  <div class="link">
+    Already have an account? <a href="login.html">Login</a>
+  </div>
+</div>
+
+<script>
+  document.getElementById("registerForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const firstName = document.getElementById("firstName").value.trim();
+    const lastName = document.getElementById("lastName").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+    const role = document.getElementById("role").value;
+
+    const errors = {
+      firstName: document.getElementById("firstNameError"),
+      lastName: document.getElementById("lastNameError"),
+      email: document.getElementById("emailError"),
+      password: document.getElementById("passwordError"),
+      confirmPassword: document.getElementById("confirmPasswordError"),
+      role: document.getElementById("roleError"),
+    };
+
+    Object.values(errors).forEach(el => el.innerText = "");
+
+    let isValid = true;
+
+    if (firstName === "") {
+      errors.firstName.innerText = "First name is required.";
+      isValid = false;
+    }
+
+    if (lastName === "") {
+      errors.lastName.innerText = "Last name is required.";
+      isValid = false;
+    }
+
+    if (!email.match(/^\S+@\S+\.\S+$/)) {
+      errors.email.innerText = "Invalid email format.";
+      isValid = false;
+    }
+
+    if (password.length < 6) {
+      errors.password.innerText = "Password must be at least 6 characters.";
+      isValid = false;
+    }
+
+    if (confirmPassword !== password) {
+      errors.confirmPassword.innerText = "Passwords do not match.";
+      isValid = false;
+    }
+
+    if (role === "") {
+      errors.role.innerText = "Please select a role.";
+      isValid = false;
+    }
+    if (isValid) {
+        let users = JSON.parse(localStorage.getItem("users") || "[]");
+      
+        if (users.find(u => u.email === email)) {
+          errors.email.innerText = "Email already registered.";
+          return;
+        }
+      
+        const newUser = { firstName, lastName, email, password, role };
+        users.push(newUser);
+        localStorage.setItem("users", JSON.stringify(users));
+        localStorage.setItem("loggedInUser", JSON.stringify(newUser)); // auto-login
+        window.location.href = "dashboard.html"; // redirect
+      }
+      
+    if (isValid) {
+      let users = JSON.parse(localStorage.getItem("users") || "[]");
+
+      if (users.find(u => u.email === email)) {
+        errors.email.innerText = "Email already registered.";
+        return;
+      }
+
+      users.push({ firstName, lastName, email, password, role });
+      localStorage.setItem("users", JSON.stringify(users));
+      alert("Registered successfully!");
+      window.location.href = "login.html";
+    }
+  });
+</script>
+
+</body>
+</html>

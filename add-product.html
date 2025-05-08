@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Product</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+    }
+
+    .topbar {
+      background: #2193b0;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .topbar .left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .back-btn {
+      background: white;
+      color: #2193b0;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .form-container {
+      max-width: 800px;
+      margin: 30px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #2193b0;
+      color: white;
+      border: none;
+      font-size: 16px;
+      margin-top: 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .logout-btn {
+      background: red;
+      border: none;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 12px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #2193b0;
+      color: white;
+    }
+
+    .empty-msg {
+      text-align: center;
+      color: #777;
+      padding: 20px 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="left">
+    <a class="back-btn" href="dashboard.html">← Dashboard</a>
+    <span>WMS Portal</span>
+  </div>
+  <div>
+    <span id="profileName">Welcome, User</span>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="form-container">
+  <h2>Add Product</h2>
+  <form id="addProductForm">
+    <input type="text" id="productCode" placeholder="Product Code" required>
+    <input type="text" id="productName" placeholder="Product Name" required>
+    <input type="number" id="quantity" placeholder="Quantity" required>
+    <input type="text" id="unit" placeholder="Unit (e.g. pcs, kg)" required>
+    <input type="text" id="location" placeholder="Warehouse Location" required>
+    <button type="submit">Add Product</button>
+  </form>
+
+  <h2 style="margin-top: 40px;">Product Inventory</h2>
+  <table id="productTable">
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Name</th>
+        <th>Quantity</th>
+        <th>Unit</th>
+        <th>Location</th>
+      </tr>
+    </thead>
+    <tbody id="productBody"></tbody>
+  </table>
+  <div id="emptyMessage" class="empty-msg"></div>
+</div>
+
+<script>
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+  if (!user) {
+    alert("Please login first");
+    window.location.href = "login.html";
+  } else {
+    document.getElementById("profileName").innerText = `Welcome, ${user.firstName}`;
+  }
+
+  function logout() {
+    localStorage.removeItem("loggedInUser");
+    window.location.href = "login.html";
+  }
+
+  const form = document.getElementById("addProductForm");
+  const productBody = document.getElementById("productBody");
+  const emptyMessage = document.getElementById("emptyMessage");
+
+  function loadProducts() {
+    const products = JSON.parse(localStorage.getItem("products") || "[]");
+    productBody.innerHTML = "";
+
+    if (products.length === 0) {
+      emptyMessage.innerText = "No products in inventory.";
+      return;
+    }
+
+    emptyMessage.innerText = "";
+
+    products.forEach(p => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${p.code}</td>
+        <td>${p.name}</td>
+        <td>${p.quantity}</td>
+        <td>${p.unit}</td>
+        <td>${p.location}</td>
+      `;
+      productBody.appendChild(row);
+    });
+  }
+
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const product = {
+      code: document.getElementById("productCode").value.trim(),
+      name: document.getElementById("productName").value.trim(),
+      quantity: document.getElementById("quantity").value.trim(),
+      unit: document.getElementById("unit").value.trim(),
+      location: document.getElementById("location").value.trim()
+    };
+
+    let products = JSON.parse(localStorage.getItem("products") || "[]");
+    products.push(product);
+    localStorage.setItem("products", JSON.stringify(products));
+
+    alert("Product added successfully!");
+    form.reset();
+    loadProducts();
+  });
+
+  loadProducts();
+</script>
+
+</body>
+</html>

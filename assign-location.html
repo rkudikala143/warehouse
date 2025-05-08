@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Assign Location</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f2f2f2; margin: 0; }
+    .topbar { background: #2193b0; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+    .topbar .left { display: flex; align-items: center; gap: 15px; }
+    .back-btn, .logout-btn { padding: 8px 15px; border-radius: 5px; cursor: pointer; border: none; }
+    .back-btn { background: white; color: #2193b0; font-weight: bold; text-decoration: none; }
+    .logout-btn { background: red; color: white; }
+    .container { max-width: 900px; margin: 40px auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h2 { text-align: center; margin-bottom: 20px; }
+    input { width: 100%; padding: 10px; margin-top: 10px; border-radius: 5px; border: 1px solid #ccc; }
+    button { margin-top: 15px; padding: 12px; width: 100%; border: none; border-radius: 5px; background: #2193b0; color: white; font-size: 16px; cursor: pointer; }
+    table { width: 100%; margin-top: 30px; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+    th { background: #2193b0; color: white; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="left">
+    <a class="back-btn" href="dashboard.html">← Dashboard</a>
+    <span>WMS Portal</span>
+  </div>
+  <div>
+    <span id="profileName">Welcome, User</span>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="container">
+  <h2>Assign to Warehouse Location</h2>
+  <form id="assignForm">
+    <input type="text" id="item" placeholder="Item Name (from Received)" required>
+    <input type="text" id="location" placeholder="Assign to Location (e.g. A1, B2)" required>
+    <button type="submit">Assign</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr><th>Item</th><th>Location</th></tr>
+    </thead>
+    <tbody id="locationList"></tbody>
+  </table>
+</div>
+
+<script>
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+  if (!user) window.location.href = "login.html";
+  document.getElementById("profileName").innerText = `Welcome, ${user.firstName}`;
+
+  function logout() {
+    localStorage.removeItem("loggedInUser");
+    window.location.href = "login.html";
+  }
+
+  const form = document.getElementById("assignForm");
+  const list = document.getElementById("locationList");
+
+  function loadAssignments() {
+    const assigns = JSON.parse(localStorage.getItem("itemLocations") || "[]");
+    list.innerHTML = assigns.map(a => `<tr><td>${a.item}</td><td>${a.location}</td></tr>`).join('');
+  }
+
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const item = document.getElementById("item").value.trim();
+    const location = document.getElementById("location").value.trim();
+    if (!item || !location) return alert("Both fields required");
+
+    const assigns = JSON.parse(localStorage.getItem("itemLocations") || "[]");
+    assigns.push({ item, location });
+    localStorage.setItem("itemLocations", JSON.stringify(assigns));
+    form.reset();
+    loadAssignments();
+  });
+
+  loadAssignments();
+</script>
+
+</body>
+</html>

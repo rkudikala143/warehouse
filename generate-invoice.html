@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Generate Invoices</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+    }
+
+    .topbar {
+      background: #2193b0;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .topbar .left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .back-btn {
+      background: white;
+      color: #2193b0;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .logout-btn {
+      background: red;
+      border: none;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .invoice {
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .invoice strong {
+      color: #333;
+    }
+
+    .print-btn {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      background-color: #2193b0;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .empty-msg {
+      text-align: center;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="left">
+    <a class="back-btn" href="order-management.html">← Orders</a>
+    <span>WMS Portal</span>
+  </div>
+  <div>
+    <span id="profileName">Welcome, User</span>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="container">
+  <h2>Generate Invoices</h2>
+  <div id="invoiceList"></div>
+  <div id="emptyMessage" class="empty-msg"></div>
+  <button class="print-btn" onclick="window.print()">Download / Print Invoices</button>
+</div>
+
+<script>
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+  if (!user) {
+    alert("Please login first");
+    window.location.href = "login.html";
+  } else {
+    document.getElementById("profileName").innerText = `Welcome, ${user.firstName}`;
+  }
+
+  function logout() {
+    localStorage.removeItem("loggedInUser");
+    window.location.href = "login.html";
+  }
+
+  function loadInvoices() {
+    const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+    const invoiceList = document.getElementById("invoiceList");
+    const emptyMessage = document.getElementById("emptyMessage");
+
+    invoiceList.innerHTML = "";
+
+    if (orders.length === 0) {
+      emptyMessage.innerText = "No orders to generate invoices.";
+      return;
+    }
+
+    emptyMessage.innerText = "";
+
+    orders.forEach((order, index) => {
+      const div = document.createElement("div");
+      div.className = "invoice";
+      div.innerHTML = `
+        <p><strong>Invoice #${index + 1}</strong></p>
+        <p><strong>Customer:</strong> ${order.customer}</p>
+        <p><strong>Date:</strong> ${order.date}</p>
+        <p><strong>Product:</strong> ${order.product}</p>
+        <p><strong>Quantity:</strong> ${order.qty}</p>
+        <p><strong>Shipping Address:</strong> ${order.address}</p>
+        <p><strong>Status:</strong> ${order.status || "Pending"}</p>
+      `;
+      invoiceList.appendChild(div);
+    });
+  }
+
+  loadInvoices();
+</script>
+
+</body>
+</html>

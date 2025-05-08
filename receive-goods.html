@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Receive Goods</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f2f2f2; margin: 0; }
+    .topbar { background: #2193b0; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+    .topbar .left { display: flex; align-items: center; gap: 15px; }
+    .back-btn, .logout-btn { padding: 8px 15px; border-radius: 5px; cursor: pointer; border: none; }
+    .back-btn { background: white; color: #2193b0; font-weight: bold; text-decoration: none; }
+    .logout-btn { background: red; color: white; }
+    .container { max-width: 900px; margin: 40px auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h2 { text-align: center; margin-bottom: 20px; }
+    input { width: 100%; padding: 10px; margin-top: 10px; border-radius: 5px; border: 1px solid #ccc; }
+    button { margin-top: 15px; padding: 12px; width: 100%; border: none; border-radius: 5px; background: #2193b0; color: white; font-size: 16px; cursor: pointer; }
+    table { width: 100%; margin-top: 30px; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+    th { background: #2193b0; color: white; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="left">
+    <a class="back-btn" href="dashboard.html">← Dashboard</a>
+    <span>WMS Portal</span>
+  </div>
+  <div>
+    <span id="profileName">Welcome, User</span>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="container">
+  <h2>Receive Goods</h2>
+  <form id="receiveForm">
+    <input type="text" id="shipmentId" placeholder="Shipment ID (from inbound)" required>
+    <input type="text" id="item" placeholder="Item Name" required>
+    <input type="number" id="quantity" placeholder="Quantity Received" required>
+    <button type="submit">Mark as Received</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr><th>Shipment ID</th><th>Item</th><th>Quantity</th></tr>
+    </thead>
+    <tbody id="receiveList"></tbody>
+  </table>
+</div>
+
+<script>
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+  if (!user) window.location.href = "login.html";
+  document.getElementById("profileName").innerText = `Welcome, ${user.firstName}`;
+
+  function logout() {
+    localStorage.removeItem("loggedInUser");
+    window.location.href = "login.html";
+  }
+
+  const form = document.getElementById("receiveForm");
+  const list = document.getElementById("receiveList");
+
+  function loadReceived() {
+    const received = JSON.parse(localStorage.getItem("receivedGoods") || "[]");
+    list.innerHTML = received.map(g => `<tr><td>${g.shipment}</td><td>${g.item}</td><td>${g.qty}</td></tr>`).join('');
+  }
+
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const shipment = document.getElementById("shipmentId").value.trim();
+    const item = document.getElementById("item").value.trim();
+    const qty = document.getElementById("quantity").value;
+    if (!shipment || !item || !qty) return alert("All fields are required.");
+
+    const goods = JSON.parse(localStorage.getItem("receivedGoods") || "[]");
+    goods.push({ shipment, item, qty });
+    localStorage.setItem("receivedGoods", JSON.stringify(goods));
+    form.reset();
+    loadReceived();
+  });
+
+  loadReceived();
+</script>
+
+</body>
+</html>

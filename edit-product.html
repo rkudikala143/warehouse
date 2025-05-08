@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Update Product</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+    }
+
+    .topbar {
+      background: #2193b0;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .topbar .left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .back-btn {
+      background: white;
+      color: #2193b0;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .form-container {
+      max-width: 800px;
+      margin: 30px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #2193b0;
+      color: white;
+      border: none;
+      font-size: 16px;
+      margin-top: 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .logout-btn {
+      background: red;
+      border: none;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="left">
+    <a class="back-btn" href="dashboard.html">← Dashboard</a>
+    <span>WMS Portal</span>
+  </div>
+  <div>
+    <span id="profileName">Welcome, User</span>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="form-container">
+  <h2>Update Product</h2>
+  <form id="editProductForm">
+    <select id="productSelect" required>
+      <option value="">-- Select Product Code --</option>
+    </select>
+    <input type="text" id="productName" placeholder="Product Name" required>
+    <input type="number" id="quantity" placeholder="Quantity" required>
+    <input type="text" id="unit" placeholder="Unit (e.g. pcs, kg)" required>
+    <input type="text" id="location" placeholder="Warehouse Location" required>
+    <button type="submit">Update Product</button>
+  </form>
+</div>
+
+<script>
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+  if (!user) {
+    alert("Please login first");
+    window.location.href = "login.html";
+  } else {
+    document.getElementById("profileName").innerText = `Welcome, ${user.firstName}`;
+  }
+
+  function logout() {
+    localStorage.removeItem("loggedInUser");
+    window.location.href = "login.html";
+  }
+
+  const productSelect = document.getElementById("productSelect");
+  const productName = document.getElementById("productName");
+  const quantity = document.getElementById("quantity");
+  const unit = document.getElementById("unit");
+  const locationInput = document.getElementById("location");
+
+  let products = JSON.parse(localStorage.getItem("products") || "[]");
+
+  function populateDropdown() {
+    productSelect.innerHTML = '<option value="">-- Select Product Code --</option>';
+    products.forEach((p, index) => {
+      const option = document.createElement("option");
+      option.value = index;
+      option.text = `${p.code} - ${p.name}`;
+      productSelect.appendChild(option);
+    });
+  }
+
+  productSelect.addEventListener("change", function () {
+    const selectedIndex = this.value;
+    if (selectedIndex !== "") {
+      const product = products[selectedIndex];
+      productName.value = product.name;
+      quantity.value = product.quantity;
+      unit.value = product.unit;
+      locationInput.value = product.location;
+    } else {
+      productName.value = "";
+      quantity.value = "";
+      unit.value = "";
+      locationInput.value = "";
+    }
+  });
+
+  document.getElementById("editProductForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const index = productSelect.value;
+    if (index === "") {
+      alert("Please select a product to update.");
+      return;
+    }
+
+    products[index].name = productName.value.trim();
+    products[index].quantity = quantity.value.trim();
+    products[index].unit = unit.value.trim();
+    products[index].location = locationInput.value.trim();
+
+    localStorage.setItem("products", JSON.stringify(products));
+    alert("Product updated successfully!");
+    this.reset();
+    populateDropdown();
+  });
+
+  populateDropdown();
+</script>
+
+</body>
+</html>

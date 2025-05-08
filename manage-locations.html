@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Manage Locations</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+    }
+
+    .topbar {
+      background: #2193b0;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .topbar .left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .back-btn {
+      background: white;
+      color: #2193b0;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .logout-btn {
+      background: red;
+      border: none;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #2193b0;
+      color: white;
+      border: none;
+      font-size: 16px;
+      margin-top: 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    li {
+      background: #f9f9f9;
+      border: 1px solid #ccc;
+      margin-bottom: 8px;
+      padding: 10px 15px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .remove-btn {
+      background: #f44336;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .empty-msg {
+      text-align: center;
+      color: #777;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="left">
+    <a class="back-btn" href="dashboard.html">← Dashboard</a>
+    <span>WMS Portal</span>
+  </div>
+  <div>
+    <span id="profileName">Welcome, User</span>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="container">
+  <h2>Manage Inventory Locations</h2>
+  <form id="locationForm">
+    <input type="text" id="locationInput" placeholder="Enter warehouse location" required>
+    <button type="submit">Add Location</button>
+  </form>
+
+  <ul id="locationList"></ul>
+  <div id="emptyMessage" class="empty-msg"></div>
+</div>
+
+<script>
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+  if (!user) {
+    alert("Please login first");
+    window.location.href = "login.html";
+  } else {
+    document.getElementById("profileName").innerText = `Welcome, ${user.firstName}`;
+  }
+
+  function logout() {
+    localStorage.removeItem("loggedInUser");
+    window.location.href = "login.html";
+  }
+
+  const locationForm = document.getElementById("locationForm");
+  const locationInput = document.getElementById("locationInput");
+  const locationList = document.getElementById("locationList");
+  const emptyMessage = document.getElementById("emptyMessage");
+
+  let locations = JSON.parse(localStorage.getItem("locations") || "[]");
+
+  function displayLocations() {
+    locationList.innerHTML = "";
+    if (locations.length === 0) {
+      emptyMessage.innerText = "No locations added.";
+      return;
+    }
+
+    emptyMessage.innerText = "";
+    locations.forEach((loc, index) => {
+      const li = document.createElement("li");
+      li.innerHTML = `
+        ${loc}
+        <button class="remove-btn" onclick="removeLocation(${index})">Remove</button>
+      `;
+      locationList.appendChild(li);
+    });
+  }
+
+  function removeLocation(index) {
+    locations.splice(index, 1);
+    localStorage.setItem("locations", JSON.stringify(locations));
+    displayLocations();
+  }
+
+  locationForm.addEventListener("submit", function(e) {
+    e.preventDefault();
+    const newLoc = locationInput.value.trim();
+    if (newLoc === "") return;
+
+    if (locations.includes(newLoc)) {
+      alert("Location already exists.");
+      return;
+    }
+
+    locations.push(newLoc);
+    localStorage.setItem("locations", JSON.stringify(locations));
+    locationInput.value = "";
+    displayLocations();
+  });
+
+  displayLocations();
+</script>
+
+</body>
+</html>

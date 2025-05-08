@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #6dd5ed, #2193b0);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .login-box {
+      background: white;
+      padding: 35px 30px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .login-box h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #333;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 15px;
+      transition: border 0.3s;
+    }
+
+    input:focus {
+      border-color: #2193b0;
+      outline: none;
+    }
+
+    .error {
+      color: red;
+      font-size: 13px;
+      margin-top: 5px;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px;
+      font-size: 16px;
+      background-color: #2193b0;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #1b7ca6;
+    }
+
+    .link {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .link a {
+      color: #2193b0;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-box">
+  <h2>Login</h2>
+  <input type="email" id="email" placeholder="Email Address" />
+  <div id="emailError" class="error"></div>
+
+  <input type="password" id="password" placeholder="Password" />
+  <div id="passwordError" class="error"></div>
+
+  <div id="loginError" class="error"></div>
+
+  <div class="btn-group">
+    <button onclick="loginUser()">Login</button>
+    <button onclick="clearForm()">Clear</button>
+  </div>
+
+  <div class="link">
+    <a href="register.html">Create a New Account?</a>
+  </div>
+  <div class="link">
+    <a href="forgotpassword.html">Forgot Password?</a>
+  </div>
+</div>
+
+<script>
+  function loginUser() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    const emailError = document.getElementById("emailError");
+    const passwordError = document.getElementById("passwordError");
+    const loginError = document.getElementById("loginError");
+
+    // Clear previous errors
+    emailError.innerText = "";
+    passwordError.innerText = "";
+    loginError.innerText = "";
+
+    let valid = true;
+
+    if (!email) {
+      emailError.innerText = "Email address is required.";
+      valid = false;
+    }
+
+    if (!password) {
+      passwordError.innerText = "Password is required.";
+      valid = false;
+    }
+
+    if (!valid) return;
+
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    const user = users.find(u => u.email === email && u.password === password);
+
+    if (!user) {
+      loginError.innerText = "Invalid email or password.";
+      return;
+    }
+
+    localStorage.setItem("loggedInUser", JSON.stringify(user));
+    window.location.href = "dashboard.html";
+  }
+
+  function clearForm() {
+    document.getElementById("email").value = "";
+    document.getElementById("password").value = "";
+    document.getElementById("emailError").innerText = "";
+    document.getElementById("passwordError").innerText = "";
+    document.getElementById("loginError").innerText = "";
+  }
+</script>
+
+</body>
+</html>
